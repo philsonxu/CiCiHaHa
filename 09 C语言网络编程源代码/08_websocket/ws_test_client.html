@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>WebSocket测试客户端</title>
+<style>
+body { font-family: monospace; max-width: 800px; margin: 20px auto; padding: 0 20px; }
+#log { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; background: #f8f8f8; margin: 10px 0; }
+.msg { margin: 2px 0; }
+.recv { color: blue; }
+.send { color: green; }
+.err { color: red; }
+input[type=text] { width: 70%; padding: 5px; }
+button { padding: 5px 15px; }
+.status { padding: 5px; margin: 10px 0; border-radius: 3px; }
+.connected { background: #d4edda; color: #155724; }
+.disconnected { background: #f8d7da; color: #721c24; }
+</style>
+</head>
+<body>
+<h2>WebSocket 测试客户端</h2>
+<div>
+    <input type="text" id="wsurl" value="ws://127.0.0.1:8898/" size="50">
+    <button onclick="connect()" id="btnConnect">连接</button>
+    <button onclick="disconnect()" id="btnDisconnect" disabled>断开</button>
+</div>
+<div id="status" class="status disconnected">未连接</div>
+<div id="log"></div>
+<div>
+    <input type="text" id="msg" placeholder="输入消息..." onkeydown="if(event.keyCode==13)send()">
+    <button onclick="send()">发送</button>
+</div>
+
+<script>
+let ws = null;
+const logDiv = document.getElementById('log');
+const statusDiv = document.getElementById('status');
+
+function log(text, cls) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + (cls||'');
+    div.textContent = new Date().toLocaleTimeString() + ' ' + text;
+    logDiv.appendChild(div);
+    logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+function connect() {
+    const url = document.getElementById('wsurl').value;
+    try {
+        ws = new WebSocket(url);
+        ws.onopen = () => {
+            statusDiv.textContent = '已连接到 ' + url;
+            statusDiv.className = 'status connected';
+            document.getElementById('btnConnect').disabled = true;
+            document.getElementById('btnDisconnect').disabled = false;
+            log('连接已建立', 'send');
+        };
+        ws.onmessage = (e) => {
+            log('收到: ' + e.data, 'recv');
+        };
+        ws.onerror = (e) => {
+            log('连接错误', 'err');
+        };
+        ws.onclose = () => {
+            statusDiv.textContent = '已断开';
+            statusDiv.className = 'status disconnected';
+            document.getElementById('btnConnect').disabled = false;
+            document.getElementById('btnDisconnect').disabled = true;
+            log('连接已关闭');
+        };
+    } catch(e) {
+        log('创建WebSocket失败: ' + e.message, 'err');
+    }
+}
+
+function disconnect() {
+    if (ws) ws.close();
+}
+
+function send() {
+    const input = document.getElementById('msg');
+    const msg = input.value;
+    if (!msg || !ws || ws.readyState != WebSocket.OPEN) return;
+    ws.send(msg);
+    log('发送: ' + msg, 'send');
+    input.value = '';
+}
+</script>
+</body>
+</html>

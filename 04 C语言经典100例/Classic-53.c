@@ -1,0 +1,38 @@
+﻿#include <stdio.h>
+
+//void printBinary(unsigned int num);
+void print_binary_formula(int a, int b, int c);
+
+/*
+* C 语言经典100例-53
+* https://www.runoob.com/cprogramming/c-exercise-example53.html
+* 题目：按位 异或^ 运算符
+*/
+int main()
+{
+    int a, b;
+    a = 077;
+    b = a ^ 3;
+    printf("a ^ b(decimal) 为 %d \n", b);
+    b ^= 7;
+    printf("a ^ b(decimal) 为 %d \n", b);
+    return 0;
+}
+
+/*
+* 改进版本
+* 输出二进制格式的数字，看起来更直观！
+*/
+int main()
+{
+    int a = 077, b = 3;
+    int c = a ^ b;
+    print_binary_formula(a, b, c);
+
+    a = c;
+    b = 7;
+    c = a ^ b;
+    print_binary_formula(a, b, c);
+    
+    return 0;
+}
